@@ -75,6 +75,8 @@ app.post('/threads', function(req, res) {
 // Route to handle the OAuth callback from Instagram/Meta
 app.get('/auth/instagram/callback', async (req, res) => {
   try {
+    console.log('Client ID:', INSTAGRAM_APP_ID);
+    console.log('Redirect URI:', REDIRECT_URI);
     // Extract the authorization code from the query params
     const code = req.query.code;
 
