@@ -130,7 +130,7 @@ async function getUserProfile(accessToken) {
     //const decryptedToken = decryptToken(accessToken, process.env.ENCRYPTION_KEY); // Assumes you have this function
 
     const fields = 'id,username'; // Specify fields you want
-    const url = `https://graph.instagram.com/me?fields=<span class="math-inline">\{fields\}&access\_token\=</span>${accessToken}`;
+    const url = `https://graph.instagram.com/me?fields=${fields}&access_token=${accessToken}`;
 
     const response = await axios.get(url);
     console.log('User Profile:', response.data);
