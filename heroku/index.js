@@ -102,8 +102,16 @@ app.get('/auth/instagram/callback', async (req, res) => {
     res.send(`Access Token: ${accessToken}, User ID: ${userId}`);
 
   } catch (error) {
-    console.error('Instagram OAuth Error:', error.response.data);
-    res.status(500).send('Authentication failed');
+    console.error('Instagram OAuth Error:', error.message);
+    if (error.response) {
+      // Axios response error (e.g., 4xx/5xx status code)
+      console.error('Response Data:', error.response.data);
+      console.error('Status Code:', error.response.status);
+      res.status(500).send(`Instagram API Error: ${error.response.data.error_message}`);
+    } else {
+      // Network error or no response (e.g., timeout)
+      res.status(500).send('Failed to connect to Instagram API');
+    }
   }
 });
 
