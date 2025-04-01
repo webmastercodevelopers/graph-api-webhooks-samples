@@ -103,6 +103,9 @@ app.get('/auth/instagram/callback', async (req, res) => {
     const accessToken = response.data.access_token;
     const userId = response.data.user_id;
 
+    const userProfile = await getUserProfile(accessToken);
+    console.log('User Profile:', userProfile);
+
     // Now you have the access token! Use it to make API calls.
     // Example: Redirect to a success page or return a JSON response
     res.send(`Access Token: ${accessToken}, User ID: ${userId}`);
@@ -120,5 +123,23 @@ app.get('/auth/instagram/callback', async (req, res) => {
     }
   }
 });
+
+async function getUserProfile(accessToken) {
+  try {
+    // Decrypt the accessToken if you stored it encrypted
+    const decryptedToken = decryptToken(accessToken, process.env.ENCRYPTION_KEY); // Assumes you have this function
+
+    const fields = 'id,username'; // Specify fields you want
+    const url = `https://graph.instagram.com/me?fields=<span class="math-inline">\{fields\}&access\_token\=</span>{decryptedToken}`;
+
+    const response = await axios.get(url);
+    console.log('User Profile:', response.data);
+    // response.data will look like: { "id": "INSTAGRAM_USER_ID", "username": "USERNAME" }
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Instagram profile:', error.response?.data || error.message);
+    throw error;
+  }
+}
 
 app.listen();
