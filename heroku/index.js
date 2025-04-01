@@ -5,7 +5,7 @@
  * This source code is licensed under the license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
+const { URLSearchParams } = require('url');
 const axios = require('axios'); // For making HTTP requests
 var bodyParser = require('body-parser');
 var express = require('express');
@@ -25,12 +25,12 @@ app.use(bodyParser.json());
 var token = process.env.TOKEN || 'token';
 var received_updates = [];
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   console.log(req);
   res.send('<pre>' + JSON.stringify(received_updates, null, 2) + '</pre>');
 });
 
-app.get(['/facebook', '/instagram', '/threads'], function(req, res) {
+app.get(['/facebook', '/instagram', '/threads'], function (req, res) {
   if (
     req.query['hub.mode'] == 'subscribe' &&
     req.query['hub.verify_token'] == token
@@ -41,7 +41,7 @@ app.get(['/facebook', '/instagram', '/threads'], function(req, res) {
   }
 });
 
-app.post('/facebook', function(req, res) {
+app.post('/facebook', function (req, res) {
   console.log('Facebook request body:', req.body);
 
   if (!req.isXHubValid()) {
@@ -56,7 +56,7 @@ app.post('/facebook', function(req, res) {
   res.sendStatus(200);
 });
 
-app.post('/instagram', function(req, res) {
+app.post('/instagram', function (req, res) {
   console.log('Instagram request body:');
   console.log(req.body);
   // Process the Instagram updates here
@@ -64,7 +64,7 @@ app.post('/instagram', function(req, res) {
   res.sendStatus(200);
 });
 
-app.post('/threads', function(req, res) {
+app.post('/threads', function (req, res) {
   console.log('Threads request body:');
   console.log(req.body);
   // Process the Threads updates here
@@ -75,8 +75,6 @@ app.post('/threads', function(req, res) {
 // Route to handle the OAuth callback from Instagram/Meta
 app.get('/auth/instagram/callback', async (req, res) => {
   try {
-    console.log('Client ID:', INSTAGRAM_APP_ID);
-    console.log('Redirect URI:', REDIRECT_URI);
     // Extract the authorization code from the query params
     const code = req.query.code;
 
@@ -85,15 +83,20 @@ app.get('/auth/instagram/callback', async (req, res) => {
       return res.status(400).send(`Error: ${req.query.error_description}`);
     }
 
-    // Exchange the code for an access token
+    const params = new URLSearchParams();
+    params.append('client_id', INSTAGRAM_APP_ID);
+    params.append('client_secret', INSTAGRAM_APP_SECRET);
+    params.append('grant_type', 'authorization_code');
+    params.append('redirect_uri', REDIRECT_URI);
+    params.append('code', code);
+
     const response = await axios.post(
       'https://api.instagram.com/oauth/access_token',
+      params, // Send the URLSearchParams object
       {
-        client_id: INSTAGRAM_APP_ID,
-        client_secret: INSTAGRAM_APP_SECRET,
-        grant_type: 'authorization_code',
-        redirect_uri: REDIRECT_URI,
-        code: code,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
       }
     );
 
