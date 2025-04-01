@@ -127,10 +127,10 @@ app.get('/auth/instagram/callback', async (req, res) => {
 async function getUserProfile(accessToken) {
   try {
     // Decrypt the accessToken if you stored it encrypted
-    const decryptedToken = decryptToken(accessToken, process.env.ENCRYPTION_KEY); // Assumes you have this function
+    //const decryptedToken = decryptToken(accessToken, process.env.ENCRYPTION_KEY); // Assumes you have this function
 
     const fields = 'id,username'; // Specify fields you want
-    const url = `https://graph.instagram.com/me?fields=<span class="math-inline">\{fields\}&access\_token\=</span>{decryptedToken}`;
+    const url = `https://graph.instagram.com/me?fields=<span class="math-inline">\{fields\}&access\_token\=</span>${accessToken}`;
 
     const response = await axios.get(url);
     console.log('User Profile:', response.data);
