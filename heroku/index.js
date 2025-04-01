@@ -11,6 +11,10 @@ var express = require('express');
 var app = express();
 var xhub = require('express-x-hub');
 
+const INSTAGRAM_APP_ID = process.env.INSTAGRAM_APP_ID || '';
+const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET || '';
+const REDIRECT_URI = process.env.REDIRECT_URI || ''; // Replace with your domain
+
 app.set('port', (process.env.PORT || 5000));
 app.listen(app.get('port'));
 
@@ -65,6 +69,42 @@ app.post('/threads', function(req, res) {
   // Process the Threads updates here
   received_updates.unshift(req.body);
   res.sendStatus(200);
+});
+
+// Route to handle the OAuth callback from Instagram/Meta
+app.get('/auth/instagram/callback', async (req, res) => {
+  try {
+    // Extract the authorization code from the query params
+    const code = req.query.code;
+
+    // If there's an error (e.g., user denied permissions)
+    if (req.query.error) {
+      return res.status(400).send(`Error: ${req.query.error_description}`);
+    }
+
+    // Exchange the code for an access token
+    const response = await axios.post(
+      'https://api.instagram.com/oauth/access_token',
+      {
+        client_id: INSTAGRAM_APP_ID,
+        client_secret: INSTAGRAM_APP_SECRET,
+        grant_type: 'authorization_code',
+        redirect_uri: REDIRECT_URI,
+        code: code,
+      }
+    );
+
+    const accessToken = response.data.access_token;
+    const userId = response.data.user_id;
+
+    // Now you have the access token! Use it to make API calls.
+    // Example: Redirect to a success page or return a JSON response
+    res.send(`Access Token: ${accessToken}, User ID: ${userId}`);
+
+  } catch (error) {
+    console.error('Instagram OAuth Error:', error.response.data);
+    res.status(500).send('Authentication failed');
+  }
 });
 
 app.listen();
