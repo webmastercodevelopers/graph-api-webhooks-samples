@@ -124,6 +124,11 @@ app.get('/auth/instagram/callback', async (req, res) => {
   }
 });
 
+// Privacy Policy endpoint
+app.get('/privacy-policy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacy-policy.html'));
+});
+
 async function getUserProfile(accessToken) {
   try {
     // Decrypt the accessToken if you stored it encrypted
