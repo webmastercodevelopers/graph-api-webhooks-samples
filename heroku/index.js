@@ -11,6 +11,7 @@ var bodyParser = require('body-parser');
 var express = require('express');
 var app = express();
 var xhub = require('express-x-hub');
+const path = require('path');
 
 const INSTAGRAM_APP_ID = process.env.INSTAGRAM_APP_ID || '';
 const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET || '';
